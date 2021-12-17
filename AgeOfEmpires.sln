@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapEditor", "MapEditor\MapEditor.csproj", "{0F19D880-7936-414A-8FF4-F11E7FAF1E38}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgeOfEmpires", "AgeOfEmpires\AgeOfEmpires.csproj", "{A5E38E03-DDB9-4E94-AA1A-3F57F9C20284}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0F19D880-7936-414A-8FF4-F11E7FAF1E38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F19D880-7936-414A-8FF4-F11E7FAF1E38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F19D880-7936-414A-8FF4-F11E7FAF1E38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5E38E03-DDB9-4E94-AA1A-3F57F9C20284}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5E38E03-DDB9-4E94-AA1A-3F57F9C20284}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5E38E03-DDB9-4E94-AA1A-3F57F9C20284}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5E38E03-DDB9-4E94-AA1A-3F57F9C20284}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
