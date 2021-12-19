@@ -6,7 +6,7 @@ namespace AgeOfEmpires
     public static class GameParams {
         public static GraphicsDeviceManager Graphics;
         public static SpriteBatch SB;
-
+        public static int CellSize;
         static GameParams()
         {
 

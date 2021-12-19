@@ -1,47 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace AgeOfEmpires
 {
-    public class Camera {
-        public Viewport viewport { set; get; }
-        public int Width { set; get; }
-        public int Height { set; get; }
-        public int Speed { set; get; }
-        public int X;
-        public int Y;
-        public Camera(int w,int h) {
-            X = 100;
-            Y = 100;
-            this.Speed = 16;
-            viewport = new Viewport(0,0,w,h);
-            this.Width = w;
-            this.Height = h;
-            
-        }
 
-        public void MoveUp() {
-            this.Y += this.Speed;
-        }
-        public void MoveDown()
-        {
-            this.Y -= this.Speed;
-        }
-        public void MoveLeft()
-        {
-            this.X += this.Speed;
-        }
-        public void MoveRight()
-        {
-            this.X -= this.Speed;
-        }
-
-        public void Update() {
-            this.viewport = new Viewport(this.X,this.Y,this.Width,this.Height);
-        }
-
-
+    public class Cell
+    {
+        public int Size { set; get; }
+        public int X { set; get; }
+        public int Y { set; get; }
+        public string Type { set; get; }
     }
 
     public class GameWindow : Game
@@ -52,23 +26,82 @@ namespace AgeOfEmpires
         Texture2D rockTexture;
         Texture2D treeTexture;
         Texture2D sandTexture;
+
+        Texture2D PL;
+        Texture2D PR;
+        Texture2D PS;
+
+
+
+
         Camera camera;
+
+        
+        List<Block> field = new List<Block>();
+        List<Tree> trees = new List<Tree>();
+        List<Stone> stones = new List<Stone>();
+
+        List<Person> peoples = new List<Person>();
 
         public GameWindow()
         {
             GameParams.Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            camera = new Camera(this.Window.ClientBounds.Width, this.Window.ClientBounds.Height);
-            
-            
+
+         
+
 
             IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             
+            GameParams.Graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width;
+            GameParams.Graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
+            GameParams.Graphics.IsFullScreen = true;
+            GameParams.Graphics.ApplyChanges();
+            camera = new Camera(this.Window.ClientBounds.Width, this.Window.ClientBounds.Height);
+            GameParams.CellSize = 64;
+
+            string json = File.ReadAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop)+"/NewMap.aoemap");
+
+            var arr = JsonConvert.DeserializeObject<List<Cell>>(json);
+
+            foreach (var item in arr)
+            {
+                item.X = (item.X / 16) * GameParams.CellSize;
+                item.Y = (item.Y / 16) * GameParams.CellSize;
+                switch (item.Type)
+                {
+                    case "Water":
+                        this.field.Add(new Water(item.X,item.Y));
+                        break;
+                    case "Grass":
+                        this.field.Add(new Grass(item.X, item.Y));
+                        break;
+                    case "Sand":
+                        this.field.Add(new Sand(item.X, item.Y));
+                        break;
+                    case "Dirt":
+                        this.field.Add(new Dirt(item.X, item.Y));
+                        break;
+                    case "Tree":
+                        this.field.Add(new Grass(item.X, item.Y));
+                        this.trees.Add(new Tree(item.X,item.Y));
+                        break;
+                    case "Rock":
+                        this.field.Add(new Grass(item.X, item.Y));
+                        this.stones.Add(new Stone(item.X, item.Y));
+                        break;
+                    default:
+                        break;
+                }
+                
+            }
+
+            this.peoples.Add(new Person(800,800));
+
             base.Initialize();
         }
 
@@ -79,9 +112,13 @@ namespace AgeOfEmpires
             grassTexture = Content.Load<Texture2D>("Grass");
             waterTexture = Content.Load<Texture2D>("Water");
             dirtTexture = Content.Load<Texture2D>("Dirt");
-            rockTexture = Content.Load<Texture2D>("Rock");
+            rockTexture = Content.Load<Texture2D>("Stone");
             treeTexture = Content.Load<Texture2D>("Tree");
             sandTexture = Content.Load<Texture2D>("Sand");
+
+            PL = Content.Load<Texture2D>("FL");
+            PR = Content.Load<Texture2D>("FR");
+            PS = Content.Load<Texture2D>("FS");
         }
 
         protected override void Update(GameTime gameTime)
@@ -89,8 +126,17 @@ namespace AgeOfEmpires
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-
             var mouse = Mouse.GetState();
+            if (mouse.RightButton == ButtonState.Pressed) {
+                for (int i = 0; i < this.peoples.Count; i++)
+                {
+                    this.peoples[i].Way.Add(mouse.Position);
+                }
+            }
+            for(int i=0;i<this.peoples.Count;i++)
+            {
+                this.peoples[i].Move();
+            }
 
             if (mouse.X < 20) {
                 camera.MoveLeft();
@@ -114,21 +160,57 @@ namespace AgeOfEmpires
             this.camera.Update();
 
             // TODO: Add your update logic here
+            
+            
+
             GameParams.Graphics.GraphicsDevice.Viewport = camera.viewport;
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             GameParams.SB.Begin();
-            GameParams.SB.Draw(grassTexture, new Rectangle(0,0,32,32),Color.White);
-            GameParams.SB.Draw(waterTexture, new Rectangle(32, 0, 32, 32), Color.White);
-            GameParams.SB.Draw(dirtTexture , new Rectangle(64, 0, 32, 32), Color.White);
-            GameParams.SB.Draw(rockTexture , new Rectangle(0, 32, 32, 32), Color.White);
-            GameParams.SB.Draw(treeTexture , new Rectangle(32, 32, 32, 32), Color.White);
-            GameParams.SB.Draw(sandTexture , new Rectangle(64, 32, 32, 32), Color.White);
+
+
+            foreach (var item in this.field)
+            {
+                switch (item.ToString())
+                {
+                    case "Water":
+                        GameParams.SB.Draw(waterTexture, item.Rect, Color.White);
+                        
+                        break;
+                    case "Grass":
+                        GameParams.SB.Draw(grassTexture, item.Rect, Color.White);
+                        break;
+                    case "Sand":
+                        GameParams.SB.Draw(sandTexture, item.Rect, Color.White);
+                        break;
+                    case "Dirt":
+                        GameParams.SB.Draw(dirtTexture, item.Rect, Color.White);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            foreach (var item in this.trees)
+            {
+                GameParams.SB.Draw(treeTexture,item.Rect,Color.White);
+            }
+            foreach (var item in this.stones)
+            {
+                GameParams.SB.Draw(rockTexture, item.Rect, Color.White);
+            }
+
+            foreach (var item in this.peoples)
+            {
+                GameParams.SB.Draw(this.PS,item.Rect, Color.White);
+
+            }
+
+
             GameParams.SB.End();
 
             base.Draw(gameTime);
