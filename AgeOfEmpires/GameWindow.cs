@@ -31,8 +31,11 @@ namespace AgeOfEmpires
         Texture2D PR;
         Texture2D PS;
 
+        Texture2D SL;
+        Texture2D SR;
+        Texture2D SS;
 
-
+        Texture2D BL;
 
         Camera camera;
 
@@ -119,6 +122,13 @@ namespace AgeOfEmpires
             PL = Content.Load<Texture2D>("FL");
             PR = Content.Load<Texture2D>("FR");
             PS = Content.Load<Texture2D>("FS");
+
+            SL = Content.Load<Texture2D>("SL");
+            SR = Content.Load<Texture2D>("SR");
+            SS = Content.Load<Texture2D>("SS");
+
+            PL = Content.Load<Texture2D>("BL");
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -130,7 +140,8 @@ namespace AgeOfEmpires
             if (mouse.RightButton == ButtonState.Pressed) {
                 for (int i = 0; i < this.peoples.Count; i++)
                 {
-                    this.peoples[i].Way.Add(mouse.Position);
+                    this.peoples[i].Way.Clear();
+                    this.peoples[i].Way.Add(new Point(mouse.X-camera.X, mouse.Y - camera.Y));
                 }
             }
             for(int i=0;i<this.peoples.Count;i++)
@@ -203,10 +214,104 @@ namespace AgeOfEmpires
             {
                 GameParams.SB.Draw(rockTexture, item.Rect, Color.White);
             }
-
             foreach (var item in this.peoples)
             {
-                GameParams.SB.Draw(this.PS,item.Rect, Color.White);
+
+                switch (item.dir)
+                {
+                    case Dir.FRONT:
+
+                        if (item.Step >= 0 && item.Step <= 3)
+                        {
+                            GameParams.SB.Draw(this.PS, item.Rect, Color.White);
+                        }
+                        else if (item.Step > 3 && item.Step <= 6)
+                        {
+                            GameParams.SB.Draw(this.PR, item.Rect, Color.White);
+                        }
+                        else
+                        {
+                            GameParams.SB.Draw(this.PL, item.Rect, Color.White);
+                        }
+
+                        break;
+                    case Dir.BACK:
+
+                        if (item.Step >= 0 && item.Step <= 5)
+                        {
+                            GameParams.SB.Draw(this.PL, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.FlipHorizontally, 0); 
+                        }
+                        else
+                        {
+                            GameParams.SB.Draw(this.PL, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.None, 0);
+                        }
+
+                        break;
+                    case Dir.LEFT:
+
+
+                        if (item.Step >= 0 && item.Step <= 3)
+                        {
+
+                            GameParams.SB.Draw(this.SS, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.FlipHorizontally, 0);
+                        }
+                        else if (item.Step > 3 && item.Step <= 6)
+                        {
+
+                            GameParams.SB.Draw(this.SR, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.FlipHorizontally, 0);
+                        }
+                        else
+                        {
+
+                            GameParams.SB.Draw(this.SL, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.FlipHorizontally, 0);
+                        }
+
+
+
+
+                       
+                        break;
+                    case Dir.RIGHT:
+                        if (item.Step >= 0 && item.Step <= 3)
+                        {
+                            GameParams.SB.Draw(this.SS, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.None, 0);
+                        }
+                        else if (item.Step > 3 && item.Step <= 6)
+                        {
+                            GameParams.SB.Draw(this.SR, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.None, 0);
+                        }
+                        else
+                        {
+                            GameParams.SB.Draw(this.SL, item.Rect, null, Color.White, 0, new Vector2(10, 16), SpriteEffects.None, 0);
+                        }
+
+
+
+
+                        break;
+                    case Dir.NONE:
+
+
+                        if (item.Step >= 0 && item.Step <= 3)
+                        {
+                            GameParams.SB.Draw(this.PS, item.Rect, Color.White);
+                        }
+                        else if (item.Step > 3 && item.Step <= 6)
+                        {
+                            GameParams.SB.Draw(this.PR, item.Rect, Color.White);
+                        }
+                        else
+                        {
+                            GameParams.SB.Draw(this.PL, item.Rect, Color.White);
+                        }
+
+
+                        break;
+                    default:
+                        break;
+                }
+
+                
 
             }
 
